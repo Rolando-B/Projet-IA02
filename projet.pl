@@ -1,7 +1,7 @@
 %change_directory('Z:/ia02').
 %consult('projet').
 
-liste(L):-L=[[o,o,o,o,o,o,o,o,o],[o,o,o,o,o,o,o,o,o],[o,o,o,o,o,o,o,o,o],[o,o,o,o,o,o,o,o,o],[o,o,o,o,o,o,o,o,o],[o,o,o,o,o,o,o,o,o],[o,o,o,o,o,o,o,o,o],[o,o,o,o,o,o,o,o,o],[o,o,o,o,o,o,o,o,o]].
+liste(L):-L=[[un,o,o,o,o,o,o,o,o],[deux,o,o,o,o,o,o,o,o],[trois,o,o,o,o,o,o,o,o],[o,o,o,o,o,o,o,o,o],[o,o,o,o,o,o,o,o,o],[o,o,o,o,o,o,o,o,o],[o,o,o,o,o,o,o,o,o],[o,o,o,o,o,o,o,o,o],[o,o,o,o,o,o,o,o,o]].
 
 imprime(T) :- imprimeGrille(T,1).
 
@@ -17,9 +17,19 @@ imprimeListe([T|Q],I) :- write(T), N is I+1, imprimeListe(Q,N).
 concat([],L,L).
 concat([T|Q],L,[T|R]) :- concat(Q,L,R).
 
-ligne(L,N,R) :- recupLigne(L,N,R,1).
+recupLigne([H|_],1,H) :- !.
+recupLigne([_|T],N,H) :- N > 0, N1 is N-1, recupLigne(T,N1,H).
 
-recupLigne([T|Q],N,L,I) :- write(N), write(I), nl, N=I, recupLigne(Q,N,T,A), !.
-recupLigne([T|Q],N,L,I) :- write(N), write(I), nl, A is I+1, recupLigne(Q,N,L,A).
+inverse([], []).
+inverse([F|Fs], T) :- inverse(F, [F|Fs], T).
+
+inverse([], _, []).
+inverse([_|Res], L, [T|Q]) :- restList(L, T, L1), inverse(Res, L1, Q).
+
+restList([], [], []).
+restList([[F|Os]|Rest], [F|Fs], [Os|Oss]) :- restList(Rest, Fs, Oss).
+
+recupColonne(L,I,H) :- inverse(L,X), recupLigne(X,I,H).
+
 
 
