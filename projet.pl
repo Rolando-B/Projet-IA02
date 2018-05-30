@@ -27,7 +27,7 @@
 %change_directory('Z:/ia02').
 %consult('projet').
 
-liste(L):-L=[
+/*liste(L):-L=[
     _,_,5,3,_,_,_,_,_,
     8,_,_,_,_,_,_,2,_,
     _,7,_,_,1,_,5,_,_,
@@ -37,13 +37,25 @@ liste(L):-L=[
     _,6,_,5,_,_,_,_,9,
     _,_,4,_,_,_,_,3,_,
     _,_,_,_,_,9,7,_,_
+  ]. */
+
+  liste(A):-A=[
+  1,2,3,4,5,6,7,8,9,
+  4,5,6,7,8,9,1,2,3,
+  7,8,9,1,2,3,4,5,6,
+  2,3,4,5,6,7,8,9,1,
+  5,6,7,8,9,1,2,3,4,
+  8,9,1,2,3,4,5,6,7,
+  3,4,5,6,7,8,9,1,2,
+  6,7,8,9,1,2,3,4,5,
+  9,1,2,3,4,5,6,7,8
   ].
 
 
 dif(X,Y) :- X \== Y.
 
 unique([]).
-unique([T|Q]) :- maplist(dif(T), Q), unique(Q).
+unique([T|Q]) :- maplist(dif(T), Q), unique(Q). %Vérifier si on a le droit d'utiliser maplist
 
 
 grille(L) :- L =[
@@ -58,13 +70,8 @@ grille(L) :- L =[
     S91,S92,S93,S94,S95,S96,S97,S98,S99
 ],
 
-/* Nouvelle fonction fd_domain */
-
-
-
-
-
-fd_domain(L, 1, 9),
+/* Test du domaine */
+domaine(L),
 /* ligne */
 unique([S11,S12,S13,S14,S15,S16,S17,S18,S19]),
 unique([S21,S22,S23,S24,S25,S26,S27,S28,S29]),
