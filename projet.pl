@@ -14,6 +14,8 @@ liste(L):-L=[
   ].
 
 
+dif(X,Y) :- X \== Y.
+
 unique([]).
 unique([T|Q]) :- maplist(dif(T), Q), unique(Q).
 
