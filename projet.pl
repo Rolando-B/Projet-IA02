@@ -17,7 +17,7 @@ liste(L):-L=[
 dif(X,Y) :- X \== Y.
 
 unique([]).
-unique([E|Es]) :- maplist(dif(E), Es), unique(Es).
+unique([T|Q]) :- maplist(dif(T), Q), unique(Q).
 
 
 grille(L) :- L =[
@@ -66,10 +66,13 @@ unique([S77,S78,S79,S87,S88,S89,S97,S98,S99]).
 disp(T) :- imprime(T,1).
 
 imprime([],_).
-imprime([T|Q],I) :- 0 is mod(I,27), write(T),nl, write('- - - - - -'),nl, N is I+1, imprime(Q,N).
-imprime([T|Q],I) :- 0 is mod(I,9), write(T), nl, N is I+1, imprime(Q,N).
-imprime([T|Q],I) :- 0 is mod(I,3), write(T),write('|'), N is I+1, imprime(Q,N).
-imprime([T|Q],I) :- write(T), N is I+1, imprime(Q,N).
+imprime([T|Q],I) :- 0 is mod(I,27), I \= 81, writeCase(T),nl, write('= = = = = = = = = = = = = = ='),nl, N is I+1, imprime(Q,N).
+imprime([T|Q],I) :- 0 is mod(I,9), writeCase(T), nl, N is I+1, imprime(Q,N).
+imprime([T|Q],I) :- 0 is mod(I,3), writeCase(T),write('|'), N is I+1, imprime(Q,N).
+imprime([T|Q],I) :- writeCase(T), N is I+1, imprime(Q,N).
+
+writeCase(X) :- var(X), write(' - '),!.
+writeCase(X) :- write(' '),write(X),write(' ').
 
 
 
