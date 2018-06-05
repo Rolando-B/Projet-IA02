@@ -67,14 +67,14 @@ replace(L, _, _, L).
 
 
 solve(EtatInit, EtatFinal,_, []).
-solve(EtatInit, EtatFinal,Hitory,[Mvt|Mvts]):-
+solve(EtatInit, EtatFinal,History,[Mvt|Mvts]):-
 move(EtatInit,EtatSucc),
   valide(EtatSucc), %lié au contrainte de notre problème
   \+element(EtatSucc,History),
   solve(EtatSucc,EtatFinal, [EtatSucc|History], Mvts).
 
   move(EtatInit,EtatSucc):- pleine(EtatInit), !.
-  move(EtatInit,EtatSucc):- replace(EtatInit,_,_,EtatSucc).
+  move(EtatInit,EtatSucc):- replace(EtatInit,_,X,EtatSucc).
 
 
 
