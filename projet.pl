@@ -39,6 +39,7 @@ domaine([]).
 domaine([T|Q]) :- var(T), domaine(Q).
 domaine([T|Q]) :- T<10, T>0, domaine(Q).
 
+etatFinal(L) :- grille(L), pleine(L).
 
 grille(L) :- L =[
     S11,S12,S13,S14,S15,S16,S17,S18,S19,
