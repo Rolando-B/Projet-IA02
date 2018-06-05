@@ -39,7 +39,24 @@ domaine([]).
 domaine([T|Q]) :- var(T), domaine(Q).
 domaine([T|Q]) :- T<10, T>0, domaine(Q).
 
+
 etatFinal(L) :- grille(L), pleine(L).
+
+concat([],L,L).
+concat([T|Q],L,[T|R]) :- concat(Q,L,R).
+
+element(X,[X|_],1).
+element(X,[_|Q],R) :- element(X,Q,N), R is N+1.
+
+
+% Pour jouer on pourra utiliser le predicat read
+
+longueur([],0).
+longueur([T|Q],N) :- longueur(Q,P), N is P+1.
+
+generationGrille(X) :- longueur(X, 81), maplist(random(1,9), X).
+
+
 
 grille(L) :- L =[
     S11,S12,S13,S14,S15,S16,S17,S18,S19,
@@ -95,5 +112,3 @@ imprime([T|Q],I) :- writeCase(T), N is I+1, imprime(Q,N).
 
 writeCase(X) :- var(X), write(' - '),!.
 writeCase(X) :- write(' '),write(X),write(' ').
-
-
