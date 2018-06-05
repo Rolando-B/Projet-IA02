@@ -36,11 +36,11 @@ unique([]).
 unique([T|Q]) :- maplist(dif(T), Q), unique(Q).
 
 domaine([]).
-domaine([T|Q]) :- var(T), domaine(Q).
+domaine([T|Q]) :- var(T), domaine(Q), !.
 domaine([T|Q]) :- T<10, T>0, domaine(Q).
 
 
-etatFinal(L) :- grille(L), pleine(L).
+etatFinal(L) :- valide(L), pleine(L).
 
 concat([],L,L).
 concat([T|Q],L,[T|R]) :- concat(Q,L,R).
@@ -48,17 +48,37 @@ concat([T|Q],L,[T|R]) :- concat(Q,L,R).
 element(X,[X|_],1).
 element(X,[_|Q],R) :- element(X,Q,N), R is N+1.
 
+del(X,[X|Q],Q).
+del(X,[Y|Q],[Y|Q1]):- del(X,Q,Q1).
+
+
+
 
 % Pour jouer on pourra utiliser le predicat read
 
 longueur([],0).
-longueur([T|Q],N) :- longueur(Q,P), N is P+1.
+longueur([_|Q],N) :- longueur(Q,P), N is P+1.
 
-generationGrille(X) :- longueur(X, 81), maplist(random(1,9), X).
+replace([_|Q], 0, X, [X|Q]).
+replace([T|Q], I, X, [T|R]):- I > -1, NI is I-1, replace(Q, NI, X, R), !.
+replace(L, _, _, L).
+
+%generationvalide(X) :- valide(X), longueur(X, 81), maplist(random(1,9), X).
+
+
+solve(EtatInit, EtatFinal,_, []).
+solve(EtatInit, EtatFinal,Hitory,[Mvt|Mvts]):-
+move(EtatInit,EtatSucc),
+  valide(EtatSucc), %lié au contrainte de notre problème
+  \+element(EtatSucc,History),
+  solve(EtatSucc,EtatFinal, [EtatSucc|History], Mvts).
+
+  move(EtatInit,EtatSucc):- pleine(EtatInit), !.
+  move(EtatInit,EtatSucc):- replace(EtatInit,_,_,EtatSucc).
 
 
 
-grille(L) :- L =[
+valide(L) :- L =[
     S11,S12,S13,S14,S15,S16,S17,S18,S19,
     S21,S22,S23,S24,S25,S26,S27,S28,S29,
     S31,S32,S33,S34,S35,S36,S37,S38,S39,
