@@ -65,7 +65,7 @@ replace(L, _, _, L).
 
 %generationvalide(X) :- valide(X), longueur(X, 81), maplist(random(1,9), X).
 
-
+/*
 solve(EtatInit, EtatFinal,_, []).
 solve(EtatInit, EtatFinal,History,[Mvt|Mvts]):-
 move(EtatInit,EtatSucc),
@@ -73,9 +73,20 @@ move(EtatInit,EtatSucc),
   \+element(EtatSucc,History),
   solve(EtatSucc,EtatFinal, [EtatSucc|History], Mvts).
 
+
   move(EtatInit,EtatSucc):- pleine(EtatInit), !.
   move(EtatInit,EtatSucc):- replace(EtatInit,_,X,EtatSucc).
+*/
 
+generer(A, [A|B], B).
+generer(A, [B|C], [B|D]) :- generer(A,C,D).
+
+valeur(X):- generer(X,[1,2,3,4,5,6,7,8,9],_).
+
+%sudoku([],Res):- pleine(Res).
+sudoku([],_).
+sudoku([T|Q],Res) :- \+ var(T), valeur(X), replace([T|Q],0,X,Res), valide(Res), !.
+sudoku([_|Q],Res) :- sudoku(Q,Res).
 
 
 valide(L) :- L =[
