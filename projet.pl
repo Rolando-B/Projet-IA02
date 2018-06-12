@@ -15,7 +15,7 @@ liste2(L):- L=[
 
 
   liste(A):- A=[
-  1,2,3,4,5,6,7,8,9,
+  1,2,_,4,5,6,7,8,9,
   4,5,6,7,8,9,1,2,3,
   7,8,9,1,2,3,4,5,6,
   2,3,4,5,6,7,8,9,1,
@@ -24,6 +24,18 @@ liste2(L):- L=[
   3,4,5,6,7,8,9,1,2,
   6,7,8,9,1,2,3,4,5,
   9,1,2,3,4,5,6,7,8
+  ].
+
+  liste3(A):- A=[
+  _,_,_,_,5,6,7,_,9,
+  4,5,_,7,8,9,_,2,3,
+  7,8,9,_,2,_,4,5,6,
+  _,3,4,5,6,7,8,9,1,
+  _,6,7,8,9,1,2,3,4,
+  _,9,1,2,_,4,5,6,7,
+  3,4,5,6,7,8,9,1,_,
+  6,7,8,9,_,2,3,4,5,
+  9,1,_,3,4,5,6,_,_
   ].
 
 
@@ -45,7 +57,7 @@ etatFinal(L) :- valide(L), pleine(L).
 concat([],L,L).
 concat([T|Q],L,[T|R]) :- concat(Q,L,R).
 
-element(X,[X|_],1).
+element(X,[X|_],0).
 element(X,[_|Q],R) :- element(X,Q,N), R is N+1.
 
 del(X,[X|Q],Q).
@@ -78,15 +90,39 @@ move(EtatInit,EtatSucc),
   move(EtatInit,EtatSucc):- replace(EtatInit,_,X,EtatSucc).
 */
 
+generer(_,[],[]) :- !.
 generer(A, [A|B], B).
 generer(A, [B|C], [B|D]) :- generer(A,C,D).
 
-valeur(X):- generer(X,[1,2,3,4,5,6,7,8,9],_).
+valeur(X):- generer(X,[1,2,3,4,5,6,7,8,9],_). %capable de générer un X qui prend des valeurs de 1 à 9
 
 %sudoku([],Res):- pleine(Res).
-sudoku([],_).
-sudoku([T|Q],Res) :- \+ var(T), valeur(X), replace([T|Q],0,X,Res), valide(Res), !.
-sudoku([_|Q],Res) :- sudoku(Q,Res).
+
+/*sudoku([],Res) :- etatFinal(Res),!.
+sudoku([T|Q],Res) :- var(T), valeur(X), replace([T|Q],0,X,Res) ,valide(Res),!.
+sudoku(Q,Res)*/
+
+/*sudoku(S,Res) :- sudoku(S,Res,0).
+
+sudoku([],Res,_) :- valide(Res).
+sudoku([T|Q],Res,I) :- valeur(X), T is X, replace(Res,I,T,Resu), valide(Resu) , N is I+1 ,sudoku(Q,Resu,N),!.
+sudoku([T|Q],R,I) :- N is I+1, sudoku(Q,R,I).*/
+
+/*sudoku(S,Res) :- sudoku(S,Res,0).
+
+sudoku([T|Q],Res,I) :- var(T), valeur(X), replace([T|Q],I,X,Res), valide(Res),!.
+sudoku([T|Q],Res,I) :- \+ var(T), valeur(X),N is I + 1, replace(Q,N,X,Res), valide(Res). */
+
+
+% Surement un problème avec le bactrcking ici
+
+sudoku(S,Res) :- sudoku(S,Res,0).
+
+sudoku([],Res,I) :- pleine(Res).
+sudoku([T|Q],Res,I) :- valeur(X), T is X, replace(_,I,X,Res), valide(Res) ,N is I+1 ,sudoku(Q,Res,N),!.
+sudoku([_|Q],R,I) :- N is I+1, sudoku(Q,R,I).
+
+
 
 
 valide(L) :- L =[
