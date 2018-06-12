@@ -13,6 +13,18 @@ liste2(L):- L=[
     _,_,_,_,_,9,7,_,_
   ].
 
+    liste3(A):- A=[
+  1,2,_,4,5,6,7,8,9,
+  4,5,6,7,_,9,1,2,3,
+  7,8,9,1,2,3,4,5,6,
+  2,3,4,_,6,7,8,9,1,
+  5,6,7,8,9,1,2,3,4,
+  8,9,1,2,_,4,5,6,7,
+  3,4,5,6,7,8,9,1,2,
+  6,7,8,9,1,2,3,4,5,
+  9,1,2,3,4,5,6,7,8
+  ].
+
 
   liste(A):- A=[
   1,2,3,4,5,6,7,8,9,
@@ -26,6 +38,28 @@ liste2(L):- L=[
   9,1,2,3,4,5,6,7,8
   ].
 
+concat([],L,L).
+concat([T|Q],L,[T|R]) :- concat(Q,L,R).
+
+element(X,[X|_],0).
+element(X,[_|Q],R) :- element(X,Q,N), R is N+1.
+
+replace([_|T], 0, X, [X|T]).
+replace([H|T], I, X, [H|R]):- I > -1, NI is I-1, replace(T, NI, X, R), !.
+replace(L, _, _, L).
+
+generer(A, [A|B], B).
+generer(A, [B|C], [B|D]) :- generer(A,C,D).
+
+valeur(X):- generer(X,[1,2,3,4,5,6,7,8,9],_). %capable de générer un X qui prend des valeurs de 1 à 9
+
+sudoku(S,Res) :- sudoku(S,Res,0).
+
+sudoku([],Res,I) :- etatFinal(Res).
+sudoku([T|Q],Res,I) :- valeur(X), T is X, replace(Res,I,X,Resu), valide(Resu) ,N is I+1 ,sudoku(Q,Resu,N).
+sudoku([T|Q],R,I) :- N is I+1,  sudoku(Q,R,I).
+
+
 
 pleine([]).
 pleine([T|Q]) :- \+ var(T), pleine(Q).
@@ -36,12 +70,12 @@ unique([]).
 unique([T|Q]) :- maplist(dif(T), Q), unique(Q).
 
 domaine([]).
-domaine([T|Q]) :- var(T), domaine(Q).
+domaine([T|Q]) :- var(T), domaine(Q), !.
 domaine([T|Q]) :- T<10, T>0, domaine(Q).
 
-etatFinal(L) :- grille(L), pleine(L).
+etatFinal(L) :- valide(L), pleine(L).
 
-grille(L) :- L =[
+valide(L) :- L =[
     S11,S12,S13,S14,S15,S16,S17,S18,S19,
     S21,S22,S23,S24,S25,S26,S27,S28,S29,
     S31,S32,S33,S34,S35,S36,S37,S38,S39,
