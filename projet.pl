@@ -1,6 +1,6 @@
 %change_directory('Z:/ia02').
 %consult('projet').
-
+%------------------------------------Grille de Test
 liste2(L):- L=[
     _,_,5,3,_,_,_,_,_,
     8,_,_,_,_,_,_,2,_,
@@ -56,6 +56,8 @@ concat([T|Q],L,[T|R]) :- concat(Q,L,R).
 element(X,[X|_],0).
 element(X,[_|Q],R) :- element(X,Q,N), R is N+1.
 
+element(X,L) :- element(X,L,_).
+
 replace([_|T], 0, X, [X|T]).
 replace([H|T], I, X, [H|R]):- I > -1, NI is I-1, replace(T, NI, X, R), !.
 replace(L, _, _, L).
@@ -85,6 +87,67 @@ domaine([T|Q]) :- T<10, T>0, domaine(Q).
 
 etatFinal(L) :- valide(L), pleine(L).
 
+
+%--------------------------Tentative pour générer une grille résolvable--------------------------
+
+%générer une liste de nombre allant de 1 à 9
+genere_liste(0,[]):- !.
+genere_liste(UB, [UB|D]):- N is UB - 1, genere_liste(N,D).
+
+liste_1_9(L):- genere_liste(9,L).
+
+%retirer un élément d'une liste
+retire_el([],_,[]).
+retire_el([X|Q],X,Q):-!.
+retire_el([T|Q],X,[T|D]):- retire_el(Q,X,D).
+
+%générer une Ligne de longueur N (Nous mettrons 9 en longueur pour chacune de nos lignes)
+genere_ligne(0,L,[],[]):-!.
+genere_ligne(N,ListeNbs,[X|L],NewListeNbs2):- element(X,ListeNbs), retire_el(ListeNbs,X,NewListeNbs),
+                                              M is N - 1 ,genere_ligne(M, NewListeNbs, L, NewListeNbs2).
+
+
+%Générer une grille de sudoku pleine
+/*grille(N,C):- UB is N*N, liste_1_9(Nbs), grille(N,C,Nbs).
+
+grille(_,[],[]).
+grille(N,[L|C],Nbs):- genere_ligne(N,Nbs,L,NewNbs), grille(N,C,NewNbs).*/
+
+add(X, L, [X|L]).
+add_list([], L, L).
+add_list([T|Q], L, L1) :- add(T, L2, L1), add_list(Q, L, L2).
+
+grille(0,[]):-!.
+grille(N,Res):- liste_1_9(Nbs), genere_ligne(N,Nbs,L,NewNbs), add_list(L,Res,R),
+                M is N - 1, solve(R,R2), grille(M,R2).
+
+/*Le début fonctionne mais impossible de concaténer 9 listes pour l'instant mais avec les prédicats
+en console je peux en concaténer deux */
+
+
+%----------------------------------------sudoku player
+sudoku :- nl,
+	write('------------------------------------------------------------------'),nl,
+	write('======= Programme Sudoku - Projet IA02 - Touzeau / Rolando ======='),nl,
+	write('-------------------------------------------------------------------'),nl,nl,
+	repeat, menu, !.
+menu :- write('\t\t=====  MENU  ====='),nl,nl,
+	write(' Que voulez vous faire ?'),nl,nl,
+	write('1. Resoudre un sudoku'),nl,
+	write('2. Proposer un sudoku'),nl,
+	write('3. Quitter'),nl,nl,
+	write('Que voulez-vous faire ? : '),
+	read(Choice), nl,
+	gestion_choix(Choice),
+  Choice=3.
+
+gestion_choix(1) :- write("------d'un sudoku --------"), nl.
+
+
+
+
+
+%------------------------------------- Résolution d'un sudoku
 solve(Puzzle,Solution) :-
 Solution = Puzzle,
 Puzzle =[
