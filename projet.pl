@@ -117,9 +117,17 @@ add(X, L, [X|L]).
 add_list([], L, L).
 add_list([T|Q], L, L1) :- add(T, L2, L1), add_list(Q, L, L2).
 
-grille(0,[]):-!.
+/*grille(0,[]):-!.
 grille(N,Res):- liste_1_9(Nbs), genere_ligne(N,Nbs,L,NewNbs), add_list(L,Res,R),
-                M is N - 1, solve(R,R2), grille(M,R2).
+            M is N - 1, solve(R,R2), grille(M,R2).*/
+%grille(S):- S = [],!.
+
+grille(0,[]):-!.
+
+%grille(S):- length(S,10).
+
+grille(N,[T|Q]) :- random(1,9,Elt), T is Elt, M is N -1, grille(M,Q).
+grille(S):- grille(81,S).
 
 /*Le début fonctionne mais impossible de concaténer 9 listes pour l'instant mais avec les prédicats
 en console je peux en concaténer deux */
