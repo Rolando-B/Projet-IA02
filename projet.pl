@@ -24,6 +24,18 @@ liste2(L):- L=[
     _,_,_,_,_,_,_,_,_
   ].
 
+  listeSols(L):- L=[
+    4,2,6,1,8,9,5,3,7,
+    9,8,5,3,6,7,2,4,1,
+    7,3,1,_,_,2,8,6,9,
+    1,5,7,2,3,8,4,9,6,
+    8,_,3,_,_,6,7,1,2,
+    6,_,2,_,7,1,3,5,8,
+    5,6,9,7,2,4,1,8,3,
+    3,7,8,6,1,5,9,2,4,
+    2,1,4,8,9,3,6,7,5
+  ].
+
   liste3(A):- A=[
   1,2,_,4,5,6,7,8,9,
   4,5,6,7,_,9,1,_,3,
@@ -143,28 +155,33 @@ sudoku :- nl,
   write('-------------------------------------------------------------------'),nl,nl,
   repeat, menu, !.
 menu :- write('\t\t=====  MENU  ====='),nl,nl,
-  write(' Que voulez vous faire ?'),nl,nl,
-  write('1. Resoudre un sudoku'),nl,
-  write('2. Proposer un sudoku'),nl,
+  write(' Résolveur de Sudoku'),nl,nl,
+  write('1. Entrer un sudoku'),nl,
+  write('2. Résoudre un sudoku aléatoire'),nl,
   write('3. Quitter'),nl,nl,
-  write('Que voulez-vous faire ? : '),
+  write('Entrez un choix svp : '),
   read(Choice), nl,
   gestion_choix(Choice),
   Choice=3.
 
-gestion_choix(1):- write('---- RESOLUTION D\'UN SUDOKU ----'),nl,
-            liste3(S),
+gestion_choix(1):- write('---- RESOLUTION DE SUDOKU ----'),nl,
+            listeSols(S),
             asserta(sudokuSave(S)),
             repeat,
             userSolvingSudoku, !.
 
-userSolvingSudoku :- nl,write('---- Complétez le sudoku ----'),nl,nl,
+handle(3):- write('---- Bye Bye ! ----'),!.
+handle(_):- write('---- Aucune option ne correspond à la commande entrée ----'),!.
+
+userSolvingSudoku :- nl,write('---- Remplissez le sudoku ----'),nl,nl,
    sudokuSave(S), disp(S), nl,
-  write('1. Definir numero'), nl,
-  write('2. Effacer numero'), nl,
+   T is 1,
+   asserta(resolving(T)),
+  write('1. Entrer nombre'), nl,
+  write('2. Supprimer nombre'), nl,
   write('3. Résoudre'), nl,
   write('4. Quitter'), nl, nl,
-  write('Que voulez-vous faire ? : '),
+  write('Entrez un choix svp : '),
   read(Choice), nl,
   fillSudoku(Choice,S),
   sudokuSave(ModifiedGrid),
@@ -172,42 +189,44 @@ userSolvingSudoku :- nl,write('---- Complétez le sudoku ----'),nl,nl,
 % ------------------------------------ Gestion user
 
 isPlayableCell(N,Sudoku):- element(X,Sudoku,N), var(X),!.
-isPlayableCell(_,_):- write('Cette case n\'est pas jouable!'),nl,fail.
+isPlayableCell(_,_):- write('Cette case n\'est pas vide!'),nl,fail.
 
 validUserInputNumber(X):- X>0, X=<9, integer(X), !.
-validUserInputNumber(_):- nl, write('Saisie incorrecte !'),nl,nl, fail.
+validUserInputNumber(_):- nl, write('Mauvaise saisie !'),nl,nl, fail.
 
-fillSudoku(1,S):- write('Ligne de la case à modifier : '), read(X), validUserInputNumber(X),nl,
-  write('Colonne de la case à modifier :'), read(Y), validUserInputNumber(Y),nl,
-  write('Valeur de la case : '), read(Z), validUserInputNumber(Z),nl,
+fillSudoku(1,S):- write('Ligne de la case à remplir : '), read(X), validUserInputNumber(X),nl,
+  write('Colonne de la case à remplir :'), read(Y), validUserInputNumber(Y),nl,
+  write('Nombre de la case : '), read(Z), validUserInputNumber(Z),nl,
   I is ((X-1)*9)+Y,
   isPlayableCell(I,S),
   N is I-1,
   replace(S,N,Z,S1),
   retract(sudokuSave(S)),
   asserta(sudokuSave(S1)),
-  write('Succès de l\'ajout.'),nl.
+  write('Succès de l\'ajout.'),nl,!.
 
 fillSudoku(1,_):- !.
 
-fillSudoku(2,S):- write('Ligne de la case à effacer :'), read(X), validUserInputNumber(X),nl,
-  write('Colonne de la case à effacer:'), read(Y), validUserInputNumber(Y),nl,
+fillSudoku(2,S):- write('Ligne de la case à supprimer :'), read(X), validUserInputNumber(X),nl,
+  write('Colonne de la case à supprmier:'), read(Y), validUserInputNumber(Y),nl,
   I is ((X-1)*9)+Y,
-  isPlayableCell(I,S),
   replace(S,I,_,S1),
   retract(sudokuSave(S)),
-  asserta(sudokuSave(S1)).
+  asserta(sudokuSave(S1)),!.
 
 fillSudoku(2,_):- !.
 
 fillSudoku(3,S):-
   solve(S,S1),
   retract(sudokuSave(S)),
-  asserta(sudokuSave(S1)).
+  asserta(sudokuSave(S1)),!.
 
 fillSudoku(3,_):- !.
 
-handleResolution(4,_):-!.
+fillSudoku(4,_):- !.
+
+
+fillSudoku(_,_):- nl, write('Option invalide'), nl.
 
 
 %------------------------------------- Résolution d'un sudoku
