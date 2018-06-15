@@ -25,6 +25,7 @@ liste2(L):- L=[
     2,1,4,8,9,3,6,7,5
   ].
 
+
   liste3(A):- A=[
   1,2,_,4,5,6,7,8,9,
   4,5,6,7,_,9,1,_,3,
@@ -180,7 +181,17 @@ genere(L,N,S):-genere(L,N,S).
 grille_valide(S,Diff):- liste_vide(L), genere(L,Diff,S).
 
 
+isPlayableCell(N,Sudoku):- element(X,Sudoku,N), var(X),!.
+isPlayableCell(_,_):- write('Cette case n\'est pas vide!'),nl,fail.
 
+validUserInputNumber(X):- X>0, X=<9, integer(X), !.
+validUserInputNumber(_):- nl, write('Mauvaise saisie !'),nl,nl, fail.
+
+
+exit(_,Choice) :- Choice = 4.
+
+resetSave(_) :- retract(sudokuSave(_)),!.
+resetSave(_).
 
 
 /*grille(0,_).
@@ -197,11 +208,12 @@ grille_valide(N,S):- grille_valide(S),M is N - 1, grille_valide(M,S).*/
 
 %----------------------------------------sudoku player
 sudoku :- nl,
-  write('------------------------------------------------------------------'),nl,
+  write('####################################################################'),nl,
   write('======= Programme Sudoku - Projet IA02 - Touzeau / Rolando ======='),nl,
-  write('-------------------------------------------------------------------'),nl,nl,
+  write('####################################################################'),nl,nl,
+  resetSave(_),
   repeat, menu, !.
-menu :- write('\t\t=====  MENU  ====='),nl,nl,
+menu :- write('\t\t#####  MENU  ######'),nl,nl,
   write(' Résolveur de Sudoku'),nl,nl,
   write('1. Entrer un sudoku'),nl,
   write('2. Résoudre un sudoku aléatoire'),nl,
@@ -211,19 +223,17 @@ menu :- write('\t\t=====  MENU  ====='),nl,nl,
   gestion_choix(Choice),
   Choice=3.
 
-gestion_choix(1):- write('---- RESOLUTION DE SUDOKU ----'),nl,
+gestion_choix(1):- write('#### RESOLUTION DE SUDOKU ####'),nl,
             listeSols(S),
             asserta(sudokuSave(S)),
             repeat,
             userSolvingSudoku, !.
 
-handle(3):- write('---- Bye Bye ! ----'),!.
-handle(_):- write('---- Aucune option ne correspond à la commande entrée ----'),!.
+gestion_choix(3):- write('---- Hasta la vista, baby ! ----'),!.
+gestion_choix(_):- write('---- Aucune option ne correspond à la commande entrée ----'),!.
 
-userSolvingSudoku :- nl,write('---- Remplissez le sudoku ----'),nl,nl,
+userSolvingSudoku :- nl,write('#### Remplissez le sudoku ####'),nl,nl,
    sudokuSave(S), disp(S), nl,
-   T is 1,
-   asserta(resolving(T)),
   write('1. Entrer nombre'), nl,
   write('2. Supprimer nombre'), nl,
   write('3. Résoudre'), nl,
@@ -231,32 +241,28 @@ userSolvingSudoku :- nl,write('---- Remplissez le sudoku ----'),nl,nl,
   write('Entrez un choix svp : '),
   read(Choice), nl,
   fillSudoku(Choice,S),
-  sudokuSave(ModifiedGrid),
-  fail.
+  sudokuSave(NewS),
+  exit(NewS,Choice).
 % ------------------------------------ Gestion user
 
-isPlayableCell(N,Sudoku):- element(X,Sudoku,N), var(X),!.
-isPlayableCell(_,_):- write('Cette case n\'est pas vide!'),nl,fail.
-
-validUserInputNumber(X):- X>0, X=<9, integer(X), !.
-validUserInputNumber(_):- nl, write('Mauvaise saisie !'),nl,nl, fail.
 
 fillSudoku(1,S):- write('Ligne de la case à remplir : '), read(X), validUserInputNumber(X),nl,
   write('Colonne de la case à remplir :'), read(Y), validUserInputNumber(Y),nl,
   write('Nombre de la case : '), read(Z), validUserInputNumber(Z),nl,
-  I is ((X-1)*9)+Y,
+  I is ((X-1)*9)+(Y-1),
   isPlayableCell(I,S),
   N is I-1,
   replace(S,N,Z,S1),
   retract(sudokuSave(S)),
   asserta(sudokuSave(S1)),
-  write('Succès de l\'ajout.'),nl,!.
+  write('Succès de l\'ajout.'),
+  nl,!.
 
 fillSudoku(1,_):- !.
 
 fillSudoku(2,S):- write('Ligne de la case à supprimer :'), read(X), validUserInputNumber(X),nl,
   write('Colonne de la case à supprmier:'), read(Y), validUserInputNumber(Y),nl,
-  I is ((X-1)*9)+Y,
+  I is ((X-1)*9)+(Y-1),
   replace(S,I,_,S1),
   retract(sudokuSave(S)),
   asserta(sudokuSave(S1)),!.
@@ -270,7 +276,7 @@ fillSudoku(3,S):-
 
 fillSudoku(3,_):- !.
 
-fillSudoku(4,_):- !.
+fillSudoku(4,_):- write('Retour au menu'), nl,!.
 
 fillSudoku(_,_):- nl, write('Option invalide'), nl.
 
