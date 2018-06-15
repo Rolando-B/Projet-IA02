@@ -13,6 +13,18 @@ liste2(L):- L=[
     _,_,_,_,_,9,7,_,_
   ].
 
+  liste_vide(L):- L=[
+      _,_,_,_,_,_,_,_,_,
+      _,_,_,_,_,_,_,_,_,
+      _,_,_,_,_,_,_,_,_,
+      _,_,_,_,_,_,_,_,_,
+      _,_,_,_,_,_,_,_,_,
+      _,_,_,_,_,_,_,_,_,
+      _,_,_,_,_,_,_,_,_,
+      _,_,_,_,_,_,_,_,_,
+      _,_,_,_,_,_,_,_,_
+    ].
+
   liste3(A):- A=[
   1,2,_,4,5,6,7,8,9,
   4,5,6,7,_,9,1,_,3,
@@ -144,9 +156,20 @@ add(X, L, [X|L]).
 add_list([], L, L).
 add_list([T|Q], L, L1) :- add(T, L2, L1), add_list(Q, L, L2).
 
-grille(0,[]):-!.
+grille(0,_).
+%grille(_,[T|Q]):- valide(S).
 grille(N,[T|Q]) :- rand_backtrack(1,9,Elt), T is Elt, M is N - 1, grille(M,Q).
 grille(S):- grille(81,S).
+
+genere(_,0,_):- !.
+genere(L,N,S):-random(1,81,X),random(1,10,Elt), replace(L,X,Elt,S), valide(S), M is N - 1, genere(S,M,S),!.
+genere(L,N,S):-genere(L,N,S).
+
+grille_valide(S,Diff):- liste_vide(L), genere(L,Diff,S).
+
+
+
+
 
 /*grille(0,_).
 grille(N,S):-liste(A), rand_backtrack(1,9,Elt),
