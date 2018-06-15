@@ -12,17 +12,6 @@ liste2(L):- L=[
     _,_,4,_,_,_,_,3,_,
     _,_,_,_,_,9,7,_,_
   ].
-  listeVide(L):- L=[
-    _,_,_,_,_,_,_,_,_,
-    _,_,_,_,_,_,_,_,_,
-    _,_,_,_,_,_,_,_,_,
-    _,_,_,_,_,_,_,_,_,
-    _,_,_,_,_,_,_,_,_,
-    _,_,_,_,_,_,_,_,_,
-    _,_,_,_,_,_,_,_,_,
-    _,_,_,_,_,_,_,_,_,
-    _,_,_,_,_,_,_,_,_
-  ].
 
   listeSols(L):- L=[
     4,2,6,1,8,9,5,3,7,
@@ -60,29 +49,17 @@ liste2(L):- L=[
   9,1,2,3,_,5,6,7,8
   ].
 
-  liste3(A):- A=[
-  1,2,_,4,5,6,7,8,9,
-  4,5,6,7,_,9,1,_,3,
-  7,8,9,1,2,3,4,5,_,
-  2,_,4,5,6,7,8,9,1,
-  5,6,7,_,9,1,2,3,4,
-  8,9,1,2,3,4,5,6,7,
-  3,4,5,6,7,8,9,1,2,
-  _,7,_,9,1,2,_,4,5,
-  9,1,2,3,4,5,6,7,8
-  ].
-
-  liste4(A):- A=[
-  1,2,_,4,5,6,7,_,9,
-  4,_,_,_,8,_,1,2,3,
-  7,_,9,1,2,3,_,5,_,
-  2,3,_,5,_,7,8,_,1,
-  5,_,7,_,9,1,2,_,4,
-  8,_,1,_,_,_,5,6,7,
-  3,_,_,6,7,_,9,_,2,
-  6,_,8,9,1,_,3,_,5,
-  9,1,2,3,_,5,6,7,8
-  ].
+  liste_vide(L):- L=[
+      _,_,_,_,_,_,_,_,_,
+      _,_,_,_,_,_,_,_,_,
+      _,_,_,_,_,_,_,_,_,
+      _,_,_,_,_,_,_,_,_,
+      _,_,_,_,_,_,_,_,_,
+      _,_,_,_,_,_,_,_,_,
+      _,_,_,_,_,_,_,_,_,
+      _,_,_,_,_,_,_,_,_,
+      _,_,_,_,_,_,_,_,_
+    ].
 
 
   liste(A):- A=[
@@ -152,24 +129,70 @@ retire_el([T|Q],X,[T|D]):- retire_el(Q,X,D).
 genere_ligne(0,L,[],[]):-!.
 genere_ligne(N,ListeNbs,[X|L],NewListeNbs2):- element(X,ListeNbs), retire_el(ListeNbs,X,NewListeNbs),
                                               M is N - 1 ,genere_ligne(M, NewListeNbs, L, NewListeNbs2).
+%-----------------------------Créer une fonction random qui permet le backtrack
 
+% Generate random value from Min to Max(with backtrack)
+    rand_backtrack(Min,Max,RandVal):-
+        create_list(Min,Max,List),
+        randomize_list(List,Randomized),
+        length(Randomized,Len),
 
-%Générer une grille de sudoku pleine
-/*grille(N,C):- UB is N*N, liste_1_9(Nbs), grille(N,C,Nbs).
+    % Choose one Variable from Randomized (From first element to last).
+    % When backtrack occured, next element is chosen.
+        between(1,Len,Idx),
+        nth1(Idx,Randomized,RandVal).
 
-grille(_,[],[]).
-grille(N,[L|C],Nbs):- genere_ligne(N,Nbs,L,NewNbs), grille(N,C,NewNbs).*/
+    % create integer order list
+    % [Min,Min+1,Min+2,....,Max]
+    create_list(Max,Max,[Max]):-!.
+    create_list(Min,Max,[Min|Rest]):-
+        Min1 is Min+1,
+        create_list(Min1,Max,Rest).
+
+    % shuffle List.
+    % result always changes.
+    % ex.randomize_list([1,2,3,4,5,6],R)     R=[4,2,6,1,3,5]
+    %
+    randomize_list([Val],[Val]):-!.
+    randomize_list(List,[RandVal|RestRandomized]):-
+        length(List,Len),
+        random(1,Len,RandIdx),
+        nth1(RandIdx,List,RandVal),
+        select(RandVal, List, Rest),
+        !,
+        randomize_list(Rest,RestRandomized).
+
+%--------------------------------Générer une grille de sudoku pleine
 
 add(X, L, [X|L]).
 add_list([], L, L).
 add_list([T|Q], L, L1) :- add(T, L2, L1), add_list(Q, L, L2).
 
-grille(0,[]):-!.
-grille(N,Res):- liste_1_9(Nbs), genere_ligne(N,Nbs,L,NewNbs), add_list(L,Res,R),
-                M is N - 1, solve(R,R2), grille(M,R2).
+grille(0,_).
+%grille(_,[T|Q]):- valide(S).
+grille(N,[T|Q]) :- rand_backtrack(1,9,Elt), T is Elt, M is N - 1, grille(M,Q).
+grille(S):- grille(81,S).
 
-/*Le début fonctionne mais impossible de concaténer 9 listes pour l'instant mais avec les prédicats
-en console je peux en concaténer deux */
+genere(_,0,_):- !.
+genere(L,N,S):-random(1,81,X),random(1,10,Elt), replace(L,X,Elt,S), valide(S), M is N - 1, genere(S,M,S),!.
+genere(L,N,S):-genere(L,N,S).
+
+grille_valide(S,Diff):- liste_vide(L), genere(L,Diff,S).
+
+
+
+
+
+/*grille(0,_).
+grille(N,S):-liste(A), rand_backtrack(1,9,Elt),
+            random(0,81,X), replace(A,X,Elt,S),
+            valide(S), M is N - 1, grille(M,S).*/
+
+/*grille_valide(_,S):-valide(S),!.
+grille_valide(N,S):- grille_valide(S),M is N - 1, grille_valide(M,S).*/
+
+
+/*coriger_grille(S,R):-random(1,9,X),random(1,81,I),replace(S,I,X,R),valide(R).*/
 
 
 %----------------------------------------sudoku player
@@ -249,8 +272,54 @@ fillSudoku(3,_):- !.
 
 fillSudoku(4,_):- !.
 
-
 fillSudoku(_,_):- nl, write('Option invalide'), nl.
+
+
+%-----------------------------------------Validité d'une Grille
+valide(L) :- L =[
+    S11,S12,S13,S14,S15,S16,S17,S18,S19,
+    S21,S22,S23,S24,S25,S26,S27,S28,S29,
+    S31,S32,S33,S34,S35,S36,S37,S38,S39,
+    S41,S42,S43,S44,S45,S46,S47,S48,S49,
+    S51,S52,S53,S54,S55,S56,S57,S58,S59,
+    S61,S62,S63,S64,S65,S66,S67,S68,S69,
+    S71,S72,S73,S74,S75,S76,S77,S78,S79,
+    S81,S82,S83,S84,S85,S86,S87,S88,S89,
+    S91,S92,S93,S94,S95,S96,S97,S98,S99
+],
+/* Test du domaine */
+domaine(L),
+/* ligne */
+unique([S11,S12,S13,S14,S15,S16,S17,S18,S19]),
+unique([S21,S22,S23,S24,S25,S26,S27,S28,S29]),
+unique([S31,S32,S33,S34,S35,S36,S37,S38,S39]),
+unique([S41,S42,S43,S44,S45,S46,S47,S48,S49]),
+unique([S51,S52,S53,S54,S55,S56,S57,S58,S59]),
+unique([S61,S62,S63,S64,S65,S66,S67,S68,S69]),
+unique([S71,S72,S73,S74,S75,S76,S77,S78,S79]),
+unique([S81,S82,S83,S84,S85,S86,S87,S88,S89]),
+unique([S91,S92,S93,S94,S95,S96,S97,S98,S99]),
+/* colonne */
+unique([S11,S21,S31,S41,S51,S61,S71,S81,S91]),
+unique([S12,S22,S32,S42,S52,S62,S72,S82,S92]),
+unique([S13,S23,S33,S43,S53,S63,S73,S83,S93]),
+unique([S14,S24,S34,S44,S54,S64,S74,S84,S94]),
+unique([S15,S25,S35,S45,S55,S65,S75,S85,S95]),
+unique([S16,S26,S36,S46,S56,S66,S76,S86,S96]),
+unique([S17,S27,S37,S47,S57,S67,S77,S87,S97]),
+unique([S18,S28,S38,S48,S58,S68,S78,S88,S98]),
+unique([S19,S29,S39,S49,S59,S69,S79,S89,S99]),
+/* carré */
+unique([S11,S12,S13,S21,S22,S23,S31,S32,S33]),
+unique([S14,S15,S16,S24,S25,S26,S34,S35,S36]),
+unique([S17,S18,S19,S27,S28,S29,S37,S38,S39]),
+unique([S41,S42,S43,S51,S52,S53,S61,S62,S63]),
+unique([S44,S45,S46,S54,S55,S56,S64,S65,S66]),
+unique([S47,S48,S49,S57,S58,S59,S67,S68,S69]),
+unique([S71,S72,S73,S81,S82,S83,S91,S92,S93]),
+unique([S74,S75,S76,S84,S85,S86,S94,S95,S96]),
+unique([S77,S78,S79,S87,S88,S89,S97,S98,S99]).
+
 
 
 %------------------------------------- Résolution d'un sudoku
