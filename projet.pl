@@ -168,9 +168,6 @@ genere(L,N,S):-genere(L,N,S).
 grille_valide(S,Diff):- liste_vide(L), genere(L,Diff,S).
 
 
-
-
-
 /*grille(0,_).
 grille(N,S):-liste(A), rand_backtrack(1,9,Elt),
             random(0,81,X), replace(A,X,Elt,S),
@@ -181,6 +178,19 @@ grille_valide(N,S):- grille_valide(S),M is N - 1, grille_valide(M,S).*/
 
 
 /*coriger_grille(S,R):-random(1,9,X),random(1,81,I),replace(S,I,X,R),valide(R).*/
+
+
+
+%-------------------------------------------grille de Sudoku
+
+grille_resolvable2(0,_).
+%grille_resolvable(10,S):-liste(Pleine), S = Pleine, grille_resolvable(9,S),!.
+grille_resolvable(N,S):-liste(Pleine), S = Pleine, random(1,81,I),
+                        replace(S,I,_,R), M is N - 1, grille_resolvable2(M,R).
+
+grille_resolvable2(N,S):-random(1,81,I),replace(S,I,_,R), M is N - 1, grille_resolvable2(M,R).
+
+
 
 
 %----------------------------------------sudoku player
