@@ -194,16 +194,11 @@ resetSave(_) :- retract(sudokuSave(_)),!.
 resetSave(_).
 
 
-/*grille(0,_).
-grille(N,S):-liste(A), rand_backtrack(1,9,Elt),
-            random(0,81,X), replace(A,X,Elt,S),
-            valide(S), M is N - 1, grille(M,S).*/
-
-/*grille_valide(_,S):-valide(S),!.
-grille_valide(N,S):- grille_valide(S),M is N - 1, grille_valide(M,S).*/
+grille_resolvable(N,S):- liste(L), grille_resolvable2(N,L,S).
 
 
-/*coriger_grille(S,R):-random(1,9,X),random(1,81,I),replace(S,I,X,R),valide(R).*/
+grille_resolvable2(0,L,L):- !.
+grille_resolvable2(N,L,S):- random(1,81,I), P is I-1,replace(L,P,_,R), M is N - 1, grille_resolvable2(M,R,S).
 
 
 %----------------------------------------sudoku player
@@ -225,6 +220,13 @@ menu :- write('\t\t#####  MENU  ######'),nl,nl,
 
 gestion_choix(1):- write('#### RESOLUTION DE SUDOKU ####'),nl,
             listeSols(S),
+            asserta(sudokuSave(S)),
+            repeat,
+            userSolvingSudoku, !.
+gestion_choix(2):- write('#### SUDOKU ALEATOIRE ####'),nl,nl,
+            write('Entrer cases manquantes'), nl,
+            read(Choice), nl,
+            grille_resolvable(Choice,S),
             asserta(sudokuSave(S)),
             repeat,
             userSolvingSudoku, !.
