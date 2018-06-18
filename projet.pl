@@ -127,7 +127,7 @@ retire_el([X|Q],X,Q):-!.
 retire_el([T|Q],X,[T|D]):- retire_el(Q,X,D).
 
 %générer une Ligne de longueur N (Nous mettrons 9 en longueur pour chacune de nos lignes)
-genere_ligne(0,L,[],[]):-!.
+genere_ligne(0,_,[],[]):-!.
 genere_ligne(N,ListeNbs,[X|L],NewListeNbs2):- element(X,ListeNbs), retire_el(ListeNbs,X,NewListeNbs),
                                               M is N - 1 ,genere_ligne(M, NewListeNbs, L, NewListeNbs2).
 %-----------------------------Créer une fonction random qui permet le backtrack
@@ -190,6 +190,12 @@ validUserInputNumber(_):- nl, write('Mauvaise saisie !'),nl,nl, fail.
 
 exit(_,Choice) :- Choice = 4.
 
+gagne(L) :- etatFinal(L), write('Winner winner chicken dinner !'), nl,!.
+gagne(_).
+
+testValide(L) :- valide(L),!.
+testValide(_) :- nl,write('Mouvement impossible'),nl,nl,fail.
+
 resetSave(_) :- retract(sudokuSave(_)),!.
 resetSave(_).
 
@@ -239,6 +245,7 @@ gestion_choix(_):- write('---- Aucune option ne correspond à la commande entré
 
 userSolvingSudoku :- nl,write('#### Remplissez le sudoku ####'),nl,nl,
    sudokuSave(S), disp(S), nl,
+  gagne(S),nl,nl,
   write('1. Entrer nombre'), nl,
   write('2. Supprimer nombre'), nl,
   write('3. Résoudre'), nl,
@@ -256,6 +263,7 @@ fillSudoku(1,S):- write('Ligne de la case à remplir : '), read(X), validUserInp
   write('Nombre de la case : '), read(Z), validUserInputNumber(Z),nl,
   I is ((X-1)*9)+(Y-1),
   replace(S,I,Z,S1),
+  testValide(S1),
   resetSave(_),
   asserta(sudokuSave(S1)),
   write('Succès de l\'ajout.'),
