@@ -220,13 +220,16 @@ menu :- write('\t\t#####  MENU  ######'),nl,nl,
 
 gestion_choix(1):- write('#### RESOLUTION DE SUDOKU ####'),nl,
             listeSols(S),
+            resetSave(_),
             asserta(sudokuSave(S)),
             repeat,
             userSolvingSudoku, !.
+
 gestion_choix(2):- write('#### SUDOKU ALEATOIRE ####'),nl,nl,
-            write('Entrer cases manquantes'), nl,
+            write('Nombre de cases manquantes :'),
             read(Choice), nl,
             grille_resolvable(Choice,S),
+            resetSave(_),
             asserta(sudokuSave(S)),
             repeat,
             userSolvingSudoku, !.
@@ -252,10 +255,8 @@ fillSudoku(1,S):- write('Ligne de la case à remplir : '), read(X), validUserInp
   write('Colonne de la case à remplir :'), read(Y), validUserInputNumber(Y),nl,
   write('Nombre de la case : '), read(Z), validUserInputNumber(Z),nl,
   I is ((X-1)*9)+(Y-1),
-  isPlayableCell(I,S),
-  N is I-1,
-  replace(S,N,Z,S1),
-  retract(sudokuSave(S)),
+  replace(S,I,Z,S1),
+  resetSave(_),
   asserta(sudokuSave(S1)),
   write('Succès de l\'ajout.'),
   nl,!.
@@ -266,14 +267,14 @@ fillSudoku(2,S):- write('Ligne de la case à supprimer :'), read(X), validUserIn
   write('Colonne de la case à supprmier:'), read(Y), validUserInputNumber(Y),nl,
   I is ((X-1)*9)+(Y-1),
   replace(S,I,_,S1),
-  retract(sudokuSave(S)),
+  resetSave(_),
   asserta(sudokuSave(S1)),!.
 
 fillSudoku(2,_):- !.
 
 fillSudoku(3,S):-
   solve(S,S1),
-  retract(sudokuSave(S)),
+  resetSave(_),
   asserta(sudokuSave(S1)),!.
 
 fillSudoku(3,_):- !.
