@@ -183,12 +183,25 @@ grille_valide(N,S):- grille_valide(S),M is N - 1, grille_valide(M,S).*/
 
 %-------------------------------------------grille de Sudoku
 
-grille_resolvable2(0,_).
-%grille_resolvable(10,S):-liste(Pleine), S = Pleine, grille_resolvable(9,S),!.
-grille_resolvable(N,S):-liste(Pleine), S = Pleine, random(1,81,I),
-                        replace(S,I,_,R), M is N - 1, grille_resolvable2(M,R).
 
-grille_resolvable2(N,S):-random(1,81,I),replace(S,I,_,R), M is N - 1, grille_resolvable2(M,R).
+grille_resolvable(N,S):- S=[
+1,2,3,4,5,6,7,8,9,
+4,5,6,7,8,9,1,2,3,
+7,8,9,1,2,3,4,5,6,
+2,3,4,5,6,7,8,9,1,
+5,6,7,8,9,1,2,3,4,
+8,9,1,2,3,4,5,6,7,
+3,4,5,6,7,8,9,1,2,
+6,7,8,9,1,2,3,4,5,
+9,1,2,3,4,5,6,7,8
+],
+grille_resol(N,S).
+
+grille_resol(0,_):-!.
+grille_resol(N,S):-random(1,81,I),replace(S,I,_,R), X is N - 1, grille_resol(X,R).
+
+test_boucle(0):-!.
+test_boucle(N):- write(test),nl, M is N - 1, test_boucle(M).
 
 
 
