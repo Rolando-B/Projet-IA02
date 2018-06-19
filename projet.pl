@@ -75,6 +75,8 @@ liste2(L):- L=[
   9,1,2,3,4,5,6,7,8
   ].
 
+% ----------------------------------- Prédicats de base --------------------------
+
 concat([],L,L).
 concat([T|Q],L,[T|R]) :- concat(Q,L,R).
 
@@ -180,9 +182,10 @@ genere(L,N,S):-genere(L,N,S).
 
 grille_valide(S,Diff):- liste_vide(L), genere(L,Diff,S).
 
+%------------------------------ Fonction de gestion des actions utilisateur
 
-isPlayableCell(N,Sudoku):- element(X,Sudoku,N), var(X),!.
-isPlayableCell(_,_):- write('Cette case n\'est pas vide!'),nl,fail.
+jouable(N,Sudoku):- element(X,Sudoku,N), var(X),!.
+jouable(_,_):- write('Cette case n\'est pas vide!'),nl,fail.
 
 validUserInputNumber(X):- X>0, X=<9, integer(X), !.
 validUserInputNumber(_):- nl, write('Mauvaise saisie !'),nl,nl, fail.
@@ -193,7 +196,7 @@ exit(_,Choice) :- Choice = 4.
 gagne(L) :- etatFinal(L), write('Winner winner chicken dinner !'), nl,!.
 gagne(_).
 
-testValide(L) :- valide(L),!.
+testValide(L) :- valide(L), write('Succès de l\'ajout'),!.
 testValide(_) :- nl,write('Mouvement impossible'),nl,nl,fail.
 
 resetSave(_) :- retract(sudokuSave(_)),!.
@@ -225,7 +228,7 @@ menu :- write('\t\t#####  MENU  ######'),nl,nl,
   Choice=3.
 
 gestion_choix(1):- write('#### RESOLUTION DE SUDOKU ####'),nl,
-            listeSols(S),
+            liste_vide(S),
             resetSave(_),
             asserta(sudokuSave(S)),
             repeat,
@@ -255,7 +258,7 @@ userSolvingSudoku :- nl,write('#### Remplissez le sudoku ####'),nl,nl,
   fillSudoku(Choice,S),
   sudokuSave(NewS),
   exit(NewS,Choice).
-% ------------------------------------ Gestion user
+% ------------------------------------ Gestion entrées
 
 
 fillSudoku(1,S):- write('Ligne de la case à remplir : '), read(X), validUserInputNumber(X),nl,
@@ -266,7 +269,6 @@ fillSudoku(1,S):- write('Ligne de la case à remplir : '), read(X), validUserInp
   testValide(S1),
   resetSave(_),
   asserta(sudokuSave(S1)),
-  write('Succès de l\'ajout.'),
   nl,!.
 
 fillSudoku(1,_):- !.
