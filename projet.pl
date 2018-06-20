@@ -85,8 +85,8 @@ element(X,[_|Q],R) :- element(X,Q,N), R is N+1.
 
 element(X,L) :- element(X,L,_).
 
-replace([_|T], 0, X, [X|T]).
-replace([H|T], I, X, [H|R]):- I > -1, NI is I-1, replace(T, NI, X, R), !.
+replace([_|Q], 0, X, [X|Q]).
+replace([T|Q], I, X, [T|R]):- I > -1, NI is I-1, replace(Q, NI, X, R), !.
 replace(L, _, _, L).
 
 generer(A, [A|B], B).
@@ -94,11 +94,8 @@ generer(A, [B|C], [B|D]) :- generer(A,C,D).
 
 valeur(X):- generer(X,[1,2,3,4,5,6,7,8,9],_). %capable de générer un X qui prend des valeurs de 1 à 9
 
-permute([], []).
-permute([X|Rest], L) :-
-    permute(Rest, L1),
-    select(X, L, L1).
-
+permuter([], []).
+permuter([X|R], L) :- permuter(R, L1), select(X, L, L1). 
 
 pleine([]).
 pleine([T|Q]) :- \+ var(T), pleine(Q).
@@ -132,9 +129,9 @@ retire_el([T|Q],X,[T|D]):- retire_el(Q,X,D).
 genere_ligne(0,_,[],[]):-!.
 genere_ligne(N,ListeNbs,[X|L],NewListeNbs2):- element(X,ListeNbs), retire_el(ListeNbs,X,NewListeNbs),
                                               M is N - 1 ,genere_ligne(M, NewListeNbs, L, NewListeNbs2).
-%-----------------------------Créer une fonction random qui permet le backtrack
+%-----------------------------Créer une fonction random qui permet le backtrack (pas réussi)
 
-% Generate random value from Min to Max(with backtrack)
+% generate random value from Min to Max(with backtrack)
     rand_backtrack(Min,Max,RandVal):-
         create_list(Min,Max,List),
         randomize_list(List,Randomized),
@@ -165,7 +162,7 @@ genere_ligne(N,ListeNbs,[X|L],NewListeNbs2):- element(X,ListeNbs), retire_el(Lis
         !,
         randomize_list(Rest,RestRandomized).
 
-%--------------------------------Générer une grille de sudoku pleine
+%--------------------------------Générer une grille de sudoku pleine aléatoire (pas réussi)
 
 add(X, L, [X|L]).
 add_list([], L, L).
@@ -176,11 +173,20 @@ grille(0,_).
 grille(N,[T|Q]) :- rand_backtrack(1,9,Elt), T is Elt, M is N - 1, grille(M,Q).
 grille(S):- grille(81,S).
 
+grille_valide(S,Diff):- liste_vide(L), genere(L,Diff,S).
+
 genere(_,0,_):- !.
 genere(L,N,S):-random(1,81,X),random(1,10,Elt), replace(L,X,Elt,S), valide(S), M is N - 1, genere(S,M,S),!.
 genere(L,N,S):-genere(L,N,S).
 
-grille_valide(S,Diff):- liste_vide(L), genere(L,Diff,S).
+%--------------------------------Générer une grille de sudoku semi-pleine à partir d'une grille valide
+
+grille_resolvable(N,S):- liste(L), grille_resolvable2(N,L,S).
+
+
+grille_resolvable2(0,L,L):- !.
+grille_resolvable2(N,L,S):- random(1,81,I), P is I-1,replace(L,P,_,R), M is N - 1, grille_resolvable2(M,R,S).
+
 
 %------------------------------ Fonction de gestion des actions utilisateur
 
@@ -203,14 +209,7 @@ resetSave(_) :- retract(sudokuSave(_)),!.
 resetSave(_).
 
 
-grille_resolvable(N,S):- liste(L), grille_resolvable2(N,L,S).
-
-
-grille_resolvable2(0,L,L):- !.
-grille_resolvable2(N,L,S):- random(1,81,I), P is I-1,replace(L,P,_,R), M is N - 1, grille_resolvable2(M,R,S).
-
-
-%----------------------------------------sudoku player
+%----------------------------------------sudoku menu
 sudoku :- nl,
   write('####################################################################'),nl,
   write('======= Programme Sudoku - Projet IA02 - Touzeau / Rolando ======='),nl,
@@ -386,10 +385,13 @@ Puzzle =[
   Carre8 = [S74,S75,S76,S84,S85,S86,S94,S95,S96],
   Carre9 = [S77,S78,S79,S87,S88,S89,S97,S98,S99],
 
-  Sets = [Ligne1,Ligne2,Ligne3,Ligne4,Ligne5,Ligne6,Ligne7,Ligne8,Ligne9,
+  All = [Ligne1,Ligne2,Ligne3,Ligne4,Ligne5,Ligne6,Ligne7,Ligne8,Ligne9,
           Colonne1,Colonne2,Colonne3,Colonne4,Colonne5,Colonne6,Colonne7,Colonne8,Colonne9,
           Carre1,Carre2,Carre3,Carre4,Carre5,Carre6,Carre7,Carre8,Carre9],
-  maplist(permute([1,2,3,4,5,6,7,8,9]), Sets).
+  maplist(permuter([1,2,3,4,5,6,7,8,9]), All).
+
+
+% ---------------------- Affichage d'une grille de sudoku 9x9
 
 disp(T) :- imprime(T,1).
 
