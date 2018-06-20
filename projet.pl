@@ -1,6 +1,6 @@
-%change_directory('Z:/ia02').
-%consult('projet').
-%------------------------------------Grille de Test
+%------------------------------------Projet IA02 - Relando - Touzeau - Sudoku
+
+%------------------------------------Grille de Test----------------------------
 liste2(L):- L=[
     _,_,5,3,_,_,_,_,_,
     8,_,_,_,_,_,_,2,_,
@@ -95,7 +95,7 @@ generer(A, [B|C], [B|D]) :- generer(A,C,D).
 valeur(X):- generer(X,[1,2,3,4,5,6,7,8,9],_). %capable de générer un X qui prend des valeurs de 1 à 9
 
 permuter([], []).
-permuter([X|R], L) :- permuter(R, L1), select(X, L, L1). 
+permuter([X|R], L) :- permuter(R, L1), select(X, L, L1).
 
 pleine([]).
 pleine([T|Q]) :- \+ var(T), pleine(Q).
@@ -129,40 +129,8 @@ retire_el([T|Q],X,[T|D]):- retire_el(Q,X,D).
 genere_ligne(0,_,[],[]):-!.
 genere_ligne(N,ListeNbs,[X|L],NewListeNbs2):- element(X,ListeNbs), retire_el(ListeNbs,X,NewListeNbs),
                                               M is N - 1 ,genere_ligne(M, NewListeNbs, L, NewListeNbs2).
-%-----------------------------Créer une fonction random qui permet le backtrack (pas réussi)
 
-% generate random value from Min to Max(with backtrack)
-    rand_backtrack(Min,Max,RandVal):-
-        create_list(Min,Max,List),
-        randomize_list(List,Randomized),
-        length(Randomized,Len),
-
-    % Choose one Variable from Randomized (From first element to last).
-    % When backtrack occured, next element is chosen.
-        between(1,Len,Idx),
-        nth1(Idx,Randomized,RandVal).
-
-    % create integer order list
-    % [Min,Min+1,Min+2,....,Max]
-    create_list(Max,Max,[Max]):-!.
-    create_list(Min,Max,[Min|Rest]):-
-        Min1 is Min+1,
-        create_list(Min1,Max,Rest).
-
-    % shuffle List.
-    % result always changes.
-    % ex.randomize_list([1,2,3,4,5,6],R)     R=[4,2,6,1,3,5]
-    %
-    randomize_list([Val],[Val]):-!.
-    randomize_list(List,[RandVal|RestRandomized]):-
-        length(List,Len),
-        random(1,Len,RandIdx),
-        nth1(RandIdx,List,RandVal),
-        select(RandVal, List, Rest),
-        !,
-        randomize_list(Rest,RestRandomized).
-
-%--------------------------------Générer une grille de sudoku pleine aléatoire (pas réussi)
+%--------------------------------Générer une grille de sudoku pleine aléatoire (pas réussi mais montre les recherches)
 
 add(X, L, [X|L]).
 add_list([], L, L).
@@ -170,7 +138,7 @@ add_list([T|Q], L, L1) :- add(T, L2, L1), add_list(Q, L, L2).
 
 grille(0,_).
 %grille(_,[T|Q]):- valide(S).
-grille(N,[T|Q]) :- rand_backtrack(1,9,Elt), T is Elt, M is N - 1, grille(M,Q).
+grille(N,[T|Q]) :- random(1,9,Elt), T is Elt, M is N - 1, grille(M,Q).
 grille(S):- grille(81,S).
 
 grille_valide(S,Diff):- liste_vide(L), genere(L,Diff,S).
@@ -391,7 +359,7 @@ Puzzle =[
   maplist(permuter([1,2,3,4,5,6,7,8,9]), All).
 
 
-% ---------------------- Affichage d'une grille de sudoku 9x9
+% -----------------------------Affichage d'une grille de sudoku 9x9
 
 disp(T) :- imprime(T,1).
 
